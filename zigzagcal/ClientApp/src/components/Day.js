@@ -9,7 +9,6 @@ export class Day extends Component {
         super(props);
     }
 
-
     render() {
         return (
 
@@ -18,11 +17,11 @@ export class Day extends Component {
                     <InputGroup.Text id={this.props.day_of_week} className="weekday-label" style={{ backgroundColor: this.props.bgColor }} >{this.props.day_of_week}</InputGroup.Text>
                 </InputGroup.Prepend>
                 <FormControl
-                    className="totals-input"
                     placeholder="0"
                     aria-label={this.props.day_of_week}
                     aria-describedby={this.props.day_of_week}
                     onChange={(event) => { this.props.onChange(this.props.day_of_week, event.target.value) }}
+                    value={this.props.value}
                 />
             </InputGroup>);
     }

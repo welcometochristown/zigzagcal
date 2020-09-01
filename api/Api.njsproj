@@ -32,10 +32,16 @@
   <ItemGroup>
     <Content Include="app.js" />
     <Content Include="favicon.ico" />
+    <Content Include="models\model_record.js" />
     <Content Include="routes.js" />
+    <Content Include="schema\schema_record.js" />
     <Content Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="models\" />
+    <Folder Include="schema\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
   <ProjectExtensions>
