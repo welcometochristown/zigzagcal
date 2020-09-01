@@ -1,0 +1,14 @@
+﻿.weekday-label {
+    width: 120px !important;
+    display: block;
+}
+
+.totals-label {
+    width: 120px !important;
+    display: block;
+}
+
+input.form-control:read-only {
+    background-color: #fff;
+}
+
