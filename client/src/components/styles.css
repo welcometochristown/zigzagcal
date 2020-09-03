@@ -1,0 +1,49 @@
+﻿.weekday-label {
+    width: 120px !important;
+    display: block;
+}
+
+.totals-label {
+    width: 120px !important;
+    display: block;
+}
+
+input.form-control.totals:read-only {
+    background-color: #fff;
+}
+
+input.form-control.strikethrough {
+    text-decoration: line-through;
+}
+
+.monday,
+.monday:read-only {
+    background-color: #CCE5FF;
+}
+.tuesday,
+.tuesday:read-only {
+    background-color: #FFDDC9;
+}
+.wednesday,
+.wednesday:read-only {
+    background-color: #D4EDDA;
+}
+.thursday,
+.thursday:read-only {
+    background-color: #F8D7DA;
+}
+.friday,
+.friday:read-only {
+    background-color: #FFF3CD;
+}
+.saturday,
+.saturday:read-only {
+    background-color: #D1ECF1;
+}
+.sunday,
+.sunday:read-only {
+    background-color: #E1D0EF;
+}
+
+
+

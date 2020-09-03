@@ -1,22 +1,43 @@
 const schema = {
     "name": "string",
     "breakdown": {
-        "0": "string",
-        "1": "string",
-        "2": "string",
-        "3": "string",
-        "4": "string",
-        "5": "string",
-        "6": "string",
+        "0": {
+            "value":"number",
+            "complete":"boolean"
+        },
+        "1": {
+            "value":"number",
+            "complete":"boolean"
+        },
+        "2": {
+            "value":"number",
+            "complete":"boolean"
+        },
+        "3":{
+            "value":"number",
+            "complete":"boolean"
+        },
+        "4": {
+            "value":"number",
+            "complete":"boolean"
+        },
+        "5": {
+            "value":"number",
+            "complete":"boolean"
+        },
+        "6": {
+            "value":"number",
+            "complete":"boolean"
+        },
     },
     "weekly": {
-        "monday": "string",
-        "tueday": "string",
-        "wednesday": "string",
-        "thursday": "string",
-        "friday": "string",
-        "saturday": "string",
-        "sunday": "string",
+        "monday": "number",
+        "tuesday": "number",
+        "wednesday": "number",
+        "thursday": "number",
+        "friday": "number",
+        "saturday": "number",
+        "sunday": "number",
     },
 
 }
