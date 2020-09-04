@@ -4,11 +4,7 @@ import './styles.css'
 
 export class Day extends Component {
     static displayName = Day.name;
-
-    constructor(props) {
-        super(props);
-    }
-
+      
     render() {
 
         let classes = ["weekday-label", this.props.day_of_week.toLowerCase()]

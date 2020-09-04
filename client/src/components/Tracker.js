@@ -12,13 +12,7 @@ import './styles.css';
 
 export class Tracker extends Component {
     static displayName = Tracker.name;
-
-    getHostnameFromRegex = (url) => {
-        // run against regex
-        const matches = url.match(/^https?\:\/\/([^\/:?#]+)/i);
-        // extract hostname (will be null if no match is found)
-        return matches && matches[1];
-    }
+    static days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
     constructor(props) {
         super(props);
@@ -31,27 +25,16 @@ export class Tracker extends Component {
             record: {
                 name: user,
                 breakdown: [...Array(7).keys()].map(i => ({ value : 0, day_complete : '' })),
-                weekly: {
-                    monday: 0,
-                    tuesday: 0,
-                    wednesday: 0,
-                    thursday: 0,
-                    friday: 0,
-                    saturday: 0,
-                    sunday: 0,
-                }
+                weekly: Object.fromEntries( Tracker.days.map(day => [day.toLowerCase(),0]) )
             },
             total_weekly: 0,
             total_remaining: 0,
             total_uneaten: 0,
             loading : true
         }
-
-        //init variables here
     }
 
-    async populateCalorieData() {
-        console.log(window.location.hostname);
+    async load() {
         const url = 'http://' + window.location.hostname + ':1337/' + this.state.user;
         await fetch(url, {
             method: 'GET',
@@ -69,78 +52,16 @@ export class Tracker extends Component {
                     loading: false
                 });
             }
+        })
+        .then(()=> {
+            this.updateTotals();
         });
-
-        console.log(this.state);
-        this.updateTotals();
+        
     }
 
     componentDidMount() {
         if(this.state.user)
-            this.populateCalorieData();
-    }
-
-    updateTotals() {
-
-     
-       // var total = this.state.record.breakdown.(+this.state.record.breakdown["0"].value + +this.state.record.breakdown["1"].value + +this.state.record.breakdown["2"].value + +this.state.record.breakdown["3"].value + +this.state.record.breakdown["4"].value + +this.state.record.breakdown["5"].value + +this.state.record.breakdown["6"].value);
-        //var eaten = (+this.state.record.weekly['monday'] + +this.state.record.weekly['tuesday'] + +this.state.record.weekly['wednesday'] + +this.state.record.weekly['thursday'] + +this.state.record.weekly['friday'] + +this.state.record.weekly['saturday'] + +this.state.record.weekly['sunday']);
-        
-        var total = this.state.record.breakdown.map(n => n.value).reduce((a, b) => a + b, 0);
-        var total_complete = this.state.record.breakdown.filter(n => n.day_complete != '').map(n => n.value).reduce((a, b) => a + b, 0);
-        var eaten = Object.keys(this.state.record.weekly).map(n => this.state.record.weekly[n]).reduce((a, b) => a+b, 0);
-        
-        var remaining = (+total - +eaten);
-        var uneaten = (+total_complete - +eaten);
-
-        console.log({total,total_complete, eaten, remaining});
-
-        this.setState({
-            total_weekly: total,
-            total_remaining : remaining,
-            total_uneaten : uneaten
-        });
-
-    }
-    async breakdownCompletionChanged(instance, day) {
-        console.log({instance, day});
-
-        let newRecord = { ... this.state.record };
-        newRecord.breakdown[instance].day_complete = day;
-
-        await this.setState({
-            record: newRecord
-        }, () => {
-            this.save()
-            console.log(this.state);
-        });
-
-        
-    }
-
-    async breakdownValueChanged(instance, value) {
-
-        let newRecord = { ... this.state.record };
-        newRecord.breakdown[instance].value = Number(value);
-
-        await this.setState({
-            record: newRecord
-        }, () => {
-            this.updateTotals();
-            this.save()
-        });
-    }
-
-    async dayValueChanged(day, value) {
-
-        let newRecord = { ... this.state.record };
-        newRecord.weekly[day.toLowerCase()] = Number(value);
-        this.setState({
-            record: newRecord
-        }, () => {
-            this.updateTotals();
-            this.save()
-        });
+            this.load();
     }
 
     async save() {
@@ -152,10 +73,50 @@ export class Tracker extends Component {
                 'Accept': 'application/json'
             },
             body: JSON.stringify(this.state.record)
-        })
-        .then(res => {
-            this.updateTotals();
         });
+    }
+
+    async update(func)
+    {
+        await this.setState({
+            record: func({ ...this.state.record })
+        }, () => {
+            this.updateTotals();
+            this.save()
+        });
+    }
+
+    async breakdownCompletionChanged(instance, day) {
+        await this.update((record) =>{ 
+            record.breakdown[instance].day_complete = day; 
+            return record;
+        })
+    }
+    async breakdownValueChanged(instance, value) {
+        await this.update((record) =>{ 
+            record.breakdown[instance].value = Number(value); 
+            return record;
+        })
+    }
+    async dayValueChanged(day, value) {
+        await this.update((record) =>{ 
+            record.weekly[day.toLowerCase()] = Number(value); 
+            return record;
+        })
+    }
+
+    updateTotals() {
+
+        var total = this.state.record.breakdown.map(n => n.value).reduce((a, b) => a + b, 0);
+        var total_complete = this.state.record.breakdown.filter(n => n.day_complete !== '').map(n => n.value).reduce((a, b) => a + b, 0);
+        var eaten = Object.keys(this.state.record.weekly).map(n => this.state.record.weekly[n]).reduce((a, b) => a+b, 0);
+        
+        this.setState({
+            total_weekly: total,
+            total_remaining : (+total - +eaten),
+            total_uneaten : (+total_complete - +eaten)
+        });
+
     }
 
     async loginbtnclicked(user)
@@ -163,65 +124,46 @@ export class Tracker extends Component {
         this.props.history.push('/tracker/' + user);
     }
 
-    submitreset= () => {
-        confirmAlert({
-          title: 'Confirm Reset',
-          message: 'Are you sure you want to reset all your data. All information will be lost.',
-          buttons: [
-            {
-              label: 'Yes',
-              onClick: () => this.reset()
-            },
-            {
-              label: 'No'
-            }
-          ]
-        });
-      };
-
     async reset()
     {
-        console.log('resetting');
-        var emptyRecord = {
-            name: this.state.user,
-            breakdown: [...Array(7).keys()].map(i => ({ value : this.state.record.breakdown[i].value, day_complete : '' })),
-            weekly: {
-                monday: 0,
-                tuesday: 0,
-                wednesday: 0,
-                thursday: 0,
-                friday: 0,
-                saturday: 0,
-                sunday: 0,
-            }
-        };
+        await this.update((record) =>{ 
+            return {
+                name: this.state.user,
+                breakdown: [...Array(7).keys()].map(i => ({ value : this.state.record.breakdown[i].value, day_complete : '' })),
+                weekly: Object.fromEntries( Tracker.days.map(day => [day.toLowerCase(),0]) )
+            };
+        })
+    }
 
-        await this.setState(
+    submitreset= () => {
+        confirmAlert({
+        title: 'Confirm Reset',
+        message: 'Are you sure you want to reset all your data. All information will be lost.',
+        buttons: [
             {
-                record : emptyRecord,
-            }, 
-            () => {
-            this.updateTotals();
-            this.save();
+            label: 'Yes',
+            onClick: () => this.reset()
+            },
+            {
+            label: 'No'
+            }
+        ]
         });
-
     }
 
     render() {
 
-        console.log('rendering');
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         const colors = ['#CCE5FF', '#FFDDC9', '#D4EDDA', '#F8D7DA', '#FFF3CD', '#D1ECF1', '#E1D0EF']
 
         const weekly_items = []
 
-        for (const day in days) {
-            weekly_items.push(<Day key={day} day_of_week={days[day]} value={Number(this.state.record.weekly[days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
+        for (const day in Tracker.days) {
+            weekly_items.push(<Day key={day} day_of_week={Tracker.days[day]} value={Number(this.state.record.weekly[Tracker.days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
         }
 
         const breakdown_items = []
 
-        for (const day in days) {
+        for (const day in Tracker.days) {
             breakdown_items.push(<Breakdown key={day} index={day} value={Number(this.state.record.breakdown[day].value)} onChange={this.breakdownValueChanged.bind(this)} day_complete={this.state.record.breakdown[day].day_complete} onComplete={this.breakdownCompletionChanged.bind(this)}/>);
         }
 
@@ -314,31 +256,31 @@ export class Tracker extends Component {
                             slices={[
                                 {
                                     color: colors[0],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.monday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.monday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[1],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.tuesday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.tuesday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[2],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.wednesday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.wednesday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[3],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.thursday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.thursday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[4],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.friday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.friday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[5],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.saturday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.saturday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: colors[6],
-                                    value: (this.state.total_weekly == 0 ? 0 : (this.state.record.weekly.sunday / this.state.total_weekly) * 100),
+                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.sunday / this.state.total_weekly) * 100),
                                 },
                                 {
                                     color: '#E2E3E5',
