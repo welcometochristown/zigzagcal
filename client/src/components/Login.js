@@ -20,6 +20,11 @@ export class Login extends Component {
         this.setState({name : value});
     }
 
+    cleanName(name)
+    {
+         return name.trim().toLowerCase();   
+    }
+
     render() {
         return (
             <div>
@@ -35,7 +40,7 @@ export class Login extends Component {
                     />
                 </InputGroup>
                 <div style={{ display: "flex", justifyContent: 'flex-end' }}>
-                    <Button variant="primary" onClick={(event) => { this.props.onClick(this.state.name)}}>Login</Button>{' '}
+                    <Button variant="primary" onClick={(event) => { this.props.onClick(this.cleanName(this.state.name))}}>Login</Button>{' '}
                 </div>
             </div>
         )

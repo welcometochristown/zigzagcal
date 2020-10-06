@@ -15,21 +15,44 @@ router.get('/', (req, res, next) => {
         if (err)
             throw err;
 
-        record.find({}, (err, duties) => {
-            res.status(200).json(duties);
+        record.find({}, (err, entries) => {
+            res.status(200).json(entries);
         })
     })  
 });
 
-router.get('/:user', (req, res, next) => {
+router.get('/last/:user/:datesk', (req, res, next) => {
     mongoose.connect('mongodb+srv://' + config.db_config.user + ':' + config.db_config.pass + '@' + config.db_config.cluster + '/' + config.db_config.db + '?retryWrites=true&w=majority', { useNewUrlParser: true }, (err) => {
        const user = req.params.user;
+       const datesk = req.params.datesk;
     
        if (err)
            throw err;
 
-       record.find({name : user}, (err, duties) => {
-           res.status(200).json(duties);
+       record
+       .find(
+        {name : user, datesk : { $lt: datesk }},
+        (err, entries) => {
+
+            if(entries.length > 0)
+                entries = entries.slice(0,1);
+
+            res.status(200).json(entries);
+       })
+       .sort({datesk : -1});
+   })  
+});
+
+router.get('/:user/:datesk', (req, res, next) => {
+    mongoose.connect('mongodb+srv://' + config.db_config.user + ':' + config.db_config.pass + '@' + config.db_config.cluster + '/' + config.db_config.db + '?retryWrites=true&w=majority', { useNewUrlParser: true }, (err) => {
+       const user = req.params.user;
+       const datesk = req.params.datesk;
+    
+       if (err)
+           throw err;
+
+       record.find({name : user, datesk : datesk}, (err, entries) => {
+           res.status(200).json(entries);
        })
    })  
 });
@@ -41,7 +64,7 @@ router.post('/', jsonParser, (req, res, next) => {
            throw err;
 
        record.findOneAndUpdate(
-           {name: req.body.name}, req.body, { upsert: true, returnNewDocument:true, new: true }
+           {name: req.body.name, datesk: req.body.datesk}, req.body, { upsert: true, returnNewDocument:true, new: true }
         )
         .then(doc => {
             res.status(200).json(doc);

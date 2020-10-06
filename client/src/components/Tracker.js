@@ -7,61 +7,126 @@ import { Breakdown } from './Breakdown';
 import { Login } from './Login'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
- 
+import { DateDisplay } from './DateDisplay';
 import './styles.css';
+import '../prototypes/proto-date';
 
 export class Tracker extends Component {
     static displayName = Tracker.name;
     static days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
+    formatDateSK(datesk)
+    {
+        if(typeof datesk === 'undefined')
+            return datesk;
+
+        if(Number.isInteger(datesk))
+            datesk = datesk.toString();
+
+        var d = Date.fromDateSK(datesk);
+                
+        var last_week_start = new Date().sow().prevWeek();
+        if(d.isDateMatch(last_week_start))
+           return "Last Week";
+
+        var this_week_start = new Date().sow();
+        if(d.isDateMatch(this_week_start))
+            return "This Week";
+            
+        var next_week_start = new Date().sow().nextWeek();
+        if(d.isDateMatch(next_week_start))
+           return "Next Week";
+
+        return datesk;
+    }
+
     constructor(props) {
         super(props);
 
-        const { match: { params } } = this.props;
-        const { user } = params;
+        let { match: { params } } = this.props;
+        let { user, datesk } = params;
+
+        if(user)
+            user = user.toLowerCase();
+
+        if(!datesk)
+            datesk = (new Date()).sow().yyyymmdd();
 
         this.state = {
-            user : user,
             record: {
                 name: user,
+                datesk: datesk,
                 breakdown: [...Array(7).keys()].map(i => ({ value : 0, day_complete : '' })),
                 weekly: Object.fromEntries( Tracker.days.map(day => [day.toLowerCase(),0]) )
             },
             total_weekly: 0,
             total_remaining: 0,
-            total_uneaten: 0,
-            loading : true
+            total_uneaten: 0
         }
     }
 
-    async load() {
-        const url = 'http://' + window.location.hostname + ':1337/' + this.state.user;
-        await fetch(url, {
+    async getLatestBreakdown(user, datesk)
+    {      
+        const url = 'http://' + window.location.hostname + ':1337/last/' + user + '/' + datesk;
+
+        return await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-
         })
         .then(res => res.json())
         .then(data => {
-            if (data.length > 0) {
-                this.setState({
-                    record: data[0],
-                    loading: false
-                });
+                if(data.length > 0)
+                {
+                    data[0].breakdown.forEach((val, index) => data[0].breakdown[index].day_complete = '');
+                    return data[0].breakdown;
+                }
+                else {
+                    return null;
+                }
+        });
+    }
+
+    async load(user, datesk) {
+
+        if(!user || !datesk)
+            return;
+
+        const url = 'http://' + window.location.hostname + ':1337/' + user + '/' + datesk;
+
+        let data = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         })
-        .then(()=> {
-            this.updateTotals();
-        });
-        
+        .then(res => res.json())
+
+        var newRecord = this.createEmptyRecord(true);
+
+        if (data.length > 0) 
+        {
+            newRecord = data[0];
+        }
+        else 
+        {
+            newRecord.datesk = datesk;
+
+            var latest =  await this.getLatestBreakdown(user, datesk);
+
+            if(latest != null)
+                newRecord.breakdown = latest;
+        }
+    
+        await this.update((record) => newRecord, false);
     }
 
     componentDidMount() {
-        if(this.state.user)
-            this.load();
+        if(this.state.record.name)
+            this.load(this.state.record.name, this.state.record.datesk);
     }
 
     async save() {
@@ -76,13 +141,15 @@ export class Tracker extends Component {
         });
     }
 
-    async update(func)
+    async update(func, save=true)
     {
         await this.setState({
             record: func({ ...this.state.record })
         }, () => {
             this.updateTotals();
-            this.save()
+
+            if(save)
+                this.save()
         });
     }
 
@@ -119,35 +186,41 @@ export class Tracker extends Component {
 
     }
 
-    async loginbtnclicked(user)
-    {
+    async loginbtnclicked(user) {
         this.props.history.push('/tracker/' + user);
     }
 
-    async reset()
+    async prevdatebtnclicked()
     {
+        await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).prevWeek().yyyymmdd());
+    }
+
+    async nextdatebtnclicked()
+    {
+        await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).nextWeek().yyyymmdd());
+    }
+
+    createEmptyRecord(clearbreakdown)
+    {
+        return {
+            name: this.state.record.name,
+            datesk : this.state.record.datesk,
+            breakdown: [...Array(7).keys()].map(i => ({ value : (clearbreakdown?0:this.state.record.breakdown[i].value), day_complete : '' })),
+            weekly: Object.fromEntries( Tracker.days.map(day => [day.toLowerCase(),0]) )
+        };
+    }
+
+    async reset() {
         await this.update((record) =>{ 
-            return {
-                name: this.state.user,
-                breakdown: [...Array(7).keys()].map(i => ({ value : this.state.record.breakdown[i].value, day_complete : '' })),
-                weekly: Object.fromEntries( Tracker.days.map(day => [day.toLowerCase(),0]) )
-            };
+            return this.createEmptyRecord(false);
         })
     }
 
     submitreset= () => {
         confirmAlert({
-        title: 'Confirm Reset',
-        message: 'Are you sure you want to reset all your data. All information will be lost.',
-        buttons: [
-            {
-            label: 'Yes',
-            onClick: () => this.reset()
-            },
-            {
-            label: 'No'
-            }
-        ]
+            title: 'Confirm Reset',
+            message: 'Are you sure you want to reset all your data. All information will be lost.',
+            buttons: [{ label: 'Yes', onClick: () => this.reset()}, {label: 'No'} ]
         });
     }
 
@@ -156,15 +229,13 @@ export class Tracker extends Component {
         const colors = ['#CCE5FF', '#FFDDC9', '#D4EDDA', '#F8D7DA', '#FFF3CD', '#D1ECF1', '#E1D0EF']
 
         const weekly_items = []
+        const breakdown_items = []
+
+        var days = [...Tracker.days].filter((n,i) => this.state.record.breakdown[i].day_complete == '');
 
         for (const day in Tracker.days) {
             weekly_items.push(<Day key={day} day_of_week={Tracker.days[day]} value={Number(this.state.record.weekly[Tracker.days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
-        }
-
-        const breakdown_items = []
-
-        for (const day in Tracker.days) {
-            breakdown_items.push(<Breakdown key={day} index={day} value={Number(this.state.record.breakdown[day].value)} onChange={this.breakdownValueChanged.bind(this)} day_complete={this.state.record.breakdown[day].day_complete} onComplete={this.breakdownCompletionChanged.bind(this)}/>);
+            breakdown_items.push(<Breakdown days={[...days]} key={day} index={day} value={Number(this.state.record.breakdown[day].value)} onChange={this.breakdownValueChanged.bind(this)} day_complete={this.state.record.breakdown[day].day_complete} onComplete={this.breakdownCompletionChanged.bind(this)}/>);
         }
 
         const content = (
@@ -172,11 +243,20 @@ export class Tracker extends Component {
             <Row>
                 <Col>
                     <Alert variant='info'>
-                        <Alert.Heading>{this.state.user}</Alert.Heading>
+                        <Alert.Heading>{this.state.record.name}</Alert.Heading>
                         Welcome to ZigZagCal. Enjoy!
                     </Alert>
                 </Col>
-            </Row>     
+            </Row>
+            <Row>
+                <Col>
+                    <DateDisplay 
+                        value={this.formatDateSK(this.state.record.datesk)} 
+                        onDatePrev={this.prevdatebtnclicked.bind(this)} 
+                        onDateNext={this.nextdatebtnclicked.bind(this)} 
+                    />
+                </Col>
+            </Row>
             <Row>
                 <Col>
                     {breakdown_items}
@@ -302,7 +382,7 @@ export class Tracker extends Component {
 
         return (
              <div>
-                {typeof this.state.user === 'undefined' ? login : content}
+                {typeof this.state.record.name === 'undefined' ? login : content}
              </div>
             );
     }

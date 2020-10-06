@@ -14,7 +14,7 @@ export default class App extends Component {
       <Layout>
           <Route exact path='/' component={Tracker} />
           <Route exact path='/tracker' component={Tracker} />
-          <Route path='/tracker/:user'
+          <Route path='/tracker/:user/:datesk?'
               render={(props) => (<Tracker {...props} />)}
           />
       </Layout>

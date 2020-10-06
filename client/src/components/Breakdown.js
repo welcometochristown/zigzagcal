@@ -15,11 +15,13 @@ export class Breakdown extends Component {
             classes.push(this.props.day_complete);
         }
 
+        this.props.days.unshift('<None>');
+        
         return (
              <InputGroup className="mb-3" key={this.props.index}>
                    <DropdownButton variant="secondary" id="dropdown-basic-button" title="">
-                    {['<None>', "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day =>
-                        (<Dropdown.Item onClick={(event) => { this.props.onComplete(this.props.index,  day.replace('<None>', '').toLowerCase()) }} >{day}</Dropdown.Item>)
+                    {this.props.days.map(day =>
+                        (<Dropdown.Item key={'breakdown'+day} onClick={(event) => { this.props.onComplete(this.props.index,  day.replace('<None>', '').toLowerCase()) }} >{day}</Dropdown.Item>)
                     )}
                 </DropdownButton>
                 <FormControl
