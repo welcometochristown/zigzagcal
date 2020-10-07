@@ -16,5 +16,5 @@ jobs:
           ftp-server: 35.183.135.170
           ftp-username: ${{ secrets.FTP_USERNAME }}
           ftp-password: ${{ secrets.FTP_PASSWORD }}
-
+          git-ftp-args: --insecure
 
