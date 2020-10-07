@@ -9,7 +9,7 @@ jobs:
   publish-api:
     runs-on: ubuntu-latest
     steps:
-      - run: echo $FTP_USER $FTP_PASS
+      - run: echo "$FTP_USER" "$FTP_PASS"
         env:
             FTP_USER : ${{ secrets.FTP_USER }}
             FTP_PASS : ${{ secrets.FTP_PASSWORD }}
