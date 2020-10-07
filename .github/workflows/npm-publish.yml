@@ -9,14 +9,16 @@ jobs:
   publish-api:
     runs-on: ubuntu-latest
     steps:
-      - run: echo  ${{ secrets.FTP_USER }}
-      - run:  echo ${{ secrets.FTP_PASSWORD }}
       - uses: actions/checkout@v2
+      - env:
+          FTP_USER :  ${{ secrets.FTP_USER }}
+          FTP_PASS :  ${{ secrets.FTP_PASSWORD }}
+      - run: echo $FTP_USER
       - uses: airvzxf/ftp-deployment-action@latest
         with:
           server: 35.183.135.170
-          user:  ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          user: $FTP_USER
+          password: $FTP_PASSWORD
           local_dir: ./api
           remote_dir: ./api
           delete: "false"
