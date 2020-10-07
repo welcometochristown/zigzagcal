@@ -11,13 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: api_ftp_deployment
-        env:
-          FTP_USER :  ${{ secrets.FTP_USERNAME }}
-          FTP_PASS :  ${{ secrets.FTP_PASSWORD }}
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: 35.183.135.170
-          user: $FTP_USER
+          user: ${{ secrets.FTP_USERNAME }}
           password: password
           local_dir: ./api
           remote_dir: ./api
