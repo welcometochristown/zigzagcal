@@ -11,10 +11,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: api_ftp_deployments
-        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        uses: sebastianpopp/ftp-action@v2.0.0
         with:
-          ftp-server: 35.183.135.170
-          ftp-username: ${{ secrets.FTP_USERNAME }}
-          ftp-password: ${{ secrets.FTP_PASSWORD }}
+          # FTP host
+          host:  35.183.135.170
+          # FTP user
+          user: ${{ secrets.FTP_USERNAME }}
+          # FTP password
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Local directory
+#          localDir: # optional, default is .
+          # Remote directory
+#          remoteDir: # optional, default is .
+
+#        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+#        with:
+#          ftp-server: 35.183.135.170
+#          ftp-username: ${{ secrets.FTP_USERNAME }}
+#          ftp-password: ${{ secrets.FTP_PASSWORD }}
 
 
