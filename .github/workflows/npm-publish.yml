@@ -11,24 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: api_ftp_deployments
-        uses: airvzxf/ftp-deployment-action@latest
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
-          server: 35.183.135.170
-          user: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local_dir: ./api
-          remote_dir: /var/www/zigzagcal/html/api
-          delete: "false"
-          max_retries: "1"
-          no_symlinks: "false"
-          ftp_ssl_allow: "true"
-          ftp_use_feat: "true"
-          ftp_nop_interval: "9"
-          net_max_retries: "0"
-          net_persist_retries: "11"
-          net_timeout: "13s"
-          dns_max_retries: "17"
-          dns_fatal_timeout: "never"
+          ftp-server: 35.183.135.170/api
+          ftp-user: ${{ secrets.FTP_USERNAME }}
+          ftp-password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./api
            
 
 
