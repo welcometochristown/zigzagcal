@@ -17,7 +17,7 @@ jobs:
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: 35.183.135.170
-          user: zigzagcal
+          user: $FTP_USER
           password: password
           local_dir: ./api
           remote_dir: ./api
