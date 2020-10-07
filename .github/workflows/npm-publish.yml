@@ -9,28 +9,7 @@ jobs:
   publish-api:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - env:
-          FTP_USER :  ${{ secrets.FTP_USER }}
-          FTP_PASS :  ${{ secrets.FTP_PASSWORD }}
-      - run: echo $FTP_USER
-      - uses: airvzxf/ftp-deployment-action@latest
-        with:
-          server: 35.183.135.170
-          user: $FTP_USER
-          password: $FTP_PASSWORD
-          local_dir: ./api
-          remote_dir: ./api
-          delete: "false"
-          max_retries: "1"
-          no_symlinks: "false"
-          ftp_ssl_allow: "true"
-          ftp_use_feat: "true"
-          ftp_nop_interval: "9"
-          net_max_retries: "0"
-          net_persist_retries: "11"
-          net_timeout: "13s"
-          dns_max_retries: "17"
-          dns_fatal_timeout: "never"
-
-        
+      - run: echo $FTP_USER $FTP_PASS
+        env:
+            FTP_USER : ${{ secrets.FTP_USER }}
+            FTP_PASS : ${{ secrets.FTP_PASSWORD }}
