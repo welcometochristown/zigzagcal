@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: api_ftp_deployments
+      - name: api_ftp_deployment
         env:
           FTP_USER :  ${{ secrets.FTP_USERNAME }}
           FTP_PASS :  ${{ secrets.FTP_PASSWORD }}
