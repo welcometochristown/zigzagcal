@@ -15,8 +15,8 @@ jobs:
           server: 35.183.135.170
           user:  ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local: ./api
-          remote: ./api
+          local_dir: ./api
+          remote_dir: ./api
           delete: "false"
 
         
