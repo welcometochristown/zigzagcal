@@ -13,10 +13,11 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm ci
+      - run: npm install
         working-directory: ./client           
       - name: build_app
-        run: npm --prefix client run build
+        run: npm run build
+        working-directory: ./client
       - name: client_ftp_deployment        
         uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
