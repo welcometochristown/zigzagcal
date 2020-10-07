@@ -18,7 +18,7 @@ jobs:
         with:
           server: 35.183.135.170
           user: $FTP_USER
-          password: $FTP_PASSWORD
+          password: $FTP_PASS
           local_dir: ./api
           remote_dir: ./api
           delete: "false"
