@@ -15,9 +15,9 @@ jobs:
       - name: api_ftp_deployment
         uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
-          ftp-server:  ${{ secrets.FTP_SERVERNAME }}
+          ftp-server:  ${{ secrets.FTP_SERVERNAME }}/api
           ftp-username: ${{ secrets.FTP_USERNAME }}
           ftp-password: ${{ secrets.FTP_PASSWORD }} 
           local-dir: api
-          git-ftp-args: --insecure --remote-root api 
+          git-ftp-args: --insecure
 
