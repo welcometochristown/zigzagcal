@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: api_ftp_deployment
+      - name: api_ftp_deployments
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: 35.183.135.170
