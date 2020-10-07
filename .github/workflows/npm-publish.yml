@@ -16,8 +16,8 @@ jobs:
           server: 35.183.135.170
           user: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local_dir: api
-          remote_dir: api
+          local_dir: ./api
+          remote_dir: /var/www/zigzagcal/html/api
           delete: "false"
           max_retries: "1"
           no_symlinks: "false"
