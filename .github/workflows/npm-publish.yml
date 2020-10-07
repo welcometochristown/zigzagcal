@@ -16,7 +16,5 @@ jobs:
           ftp-server: 35.183.135.170
           ftp-username: ${{ secrets.FTP_USERNAME }}
           ftp-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./api
-          git-ftp-args: --active
 
 
