@@ -37,6 +37,7 @@ export class Login extends Component {
                         aria-label='username'
                         aria-describedby='username'
                         onChange={(event) => { this.updateName.bind(this)(event.target.value) }}
+                        onKeyPress={(event) => { if(event.charCode == 13) this.props.onClick(this.cleanName(this.state.name))}}
                     />
                 </InputGroup>
                 <div style={{ display: "flex", justifyContent: 'flex-end' }}>
