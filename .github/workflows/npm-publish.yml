@@ -1,0 +1,44 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+name: Node.js Package
+
+on:
+  push:
+
+jobs:    
+  publish-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: api_ftp_deployment
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        with:
+          ftp-server:  ${{ secrets.FTP_SERVERNAME }}/api
+          ftp-username: ${{ secrets.FTP_USERNAME }}
+          ftp-password: ${{ secrets.FTP_PASSWORD }} 
+          local-dir: api
+          git-ftp-args: --insecure
+  publish-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: build_app
+        run: |
+             CI=false 
+             npm install 
+             npm run build
+        working-directory: ./client
+      - name: List output files
+        run: ls
+      - name: client_ftp_deployment        
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        with:
+          ftp-server:  ${{ secrets.FTP_SERVERNAME }}
+          ftp-username: ${{ secrets.FTP_USERNAME }}
+          ftp-password: ${{ secrets.FTP_PASSWORD }} 
+          local-dir: client/build
+          git-ftp-args: --insecure
+
