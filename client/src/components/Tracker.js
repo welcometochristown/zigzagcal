@@ -10,44 +10,36 @@ import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import { DateDisplay } from './DateDisplay';
 import './styles.css';
 import '../prototypes/proto-date';
+import { database } from '../utility/database';
 
 export class Tracker extends Component {
     static displayName = Tracker.name;
     static days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-    formatDateSK(datesk)
-    {
-        if(typeof datesk === 'undefined')
-            return datesk;
+    /*
+        render() {
+            if(!loggedIn)
+            {
+                <Login />
+            }
+            else
+            {
+                <Welcome />
+                <DateNavigation />
+                <Breakdown />
+                <Weekly />
+                <Totals />
+                <PieChart />
+            }
+        }
 
-        if(Number.isInteger(datesk))
-            datesk = datesk.toString();
-
-        var d = Date.fromDateSK(datesk);
-                
-        var last_week_start = new Date().sow().prevWeek();
-        if(d.isDateMatch(last_week_start))
-           return "Last Week";
-
-        var this_week_start = new Date().sow();
-        if(d.isDateMatch(this_week_start))
-            return "This Week";
-            
-        var next_week_start = new Date().sow().nextWeek();
-        if(d.isDateMatch(next_week_start))
-           return "Next Week";
-
-        return datesk;
-    }
-
+    */
+    
     constructor(props) {
         super(props);
 
         let { match: { params } } = this.props;
         let { user, datesk } = params;
-
-        if(user)
-            user = user.toLowerCase();
 
         if(!datesk)
             datesk = (new Date()).sow().yyyymmdd();
@@ -130,15 +122,7 @@ export class Tracker extends Component {
     }
 
     async save() {
-        const url = 'http://' + window.location.hostname + ':1337';
-        await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(this.state.record)
-        });
+       await database.save(this.state.record);
     }
 
     async update(func, save=true)
