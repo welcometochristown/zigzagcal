@@ -1,10 +1,10 @@
 export class database  {
-    static async load(user, datesk) {
+    static async load(user, datesk, last = false) {
 
         if(!user || !datesk)
             return;
 
-        const url = 'http://' + window.location.hostname + ':1337/' + user + '/' + datesk;
+        const url = 'http://' + window.location.hostname + ':1337/'+ (last ? 'last' : '') + user + '/' + datesk;
 
         let data = await fetch(url, {
             method: 'GET',

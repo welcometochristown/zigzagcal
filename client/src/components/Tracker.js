@@ -83,37 +83,20 @@ export class Tracker extends Component {
 
     async load(user, datesk) {
 
-        if(!user || !datesk)
-            return;
+        var record = database.load(user, datesk);
 
-        const url = 'http://' + window.location.hostname + ':1337/' + user + '/' + datesk;
-
-        let data = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-
-        var newRecord = this.createEmptyRecord(true);
-
-        if (data.length > 0) 
+        if(!record)
         {
-            newRecord = data[0];
-        }
-        else 
-        {
-            newRecord.datesk = datesk;
+            record = this.createEmptyRecord(true);
+            record.datesk = datesk;
 
             var latest =  await this.getLatestBreakdown(user, datesk);
 
-            if(latest != null)
+            if(!latest)
                 newRecord.breakdown = latest;
         }
-    
-        await this.update((record) => newRecord, false);
+
+        await this.update((r) => record, false);
     }
 
     componentDidMount() {
