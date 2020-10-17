@@ -16,25 +16,6 @@ export class Tracker extends Component {
     static displayName = Tracker.name;
     static days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-    /*
-        render() {
-            if(!loggedIn)
-            {
-                <Login />
-            }
-            else
-            {
-                <Welcome />
-                <DateNavigation />
-                <Breakdown />
-                <Weekly />
-                <Totals />
-                <PieChart />
-            }
-        }
-
-    */
-    
     constructor(props) {
         super(props);
 
@@ -59,26 +40,14 @@ export class Tracker extends Component {
 
     async getLatestBreakdown(user, datesk)
     {      
-        const url = 'http://' + window.location.hostname + ':1337/last/' + user + '/' + datesk;
+        var result = database.load(user, datesk, true);
 
-        return await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-                if(data.length > 0)
-                {
-                    data[0].breakdown.forEach((val, index) => data[0].breakdown[index].day_complete = '');
-                    return data[0].breakdown;
-                }
-                else {
-                    return null;
-                }
-        });
+        if(!result)
+            return null;
+
+        result.breakdown.forEach((_, index) => data[0].breakdown[index].day_complete = '');
+        return result.breakdown;
+
     }
 
     async load(user, datesk) {
@@ -157,13 +126,11 @@ export class Tracker extends Component {
         this.props.history.push('/tracker/' + user);
     }
 
-    async prevdatebtnclicked()
-    {
+    async prevdatebtnclicked() {
         await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).prevWeek().yyyymmdd());
     }
 
-    async nextdatebtnclicked()
-    {
+    async nextdatebtnclicked() {
         await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).nextWeek().yyyymmdd());
     }
 
@@ -197,22 +164,25 @@ export class Tracker extends Component {
 
         const weekly_items = []
         const breakdown_items = []
-
+        
         var days = [...Tracker.days].filter((n,i) => this.state.record.breakdown[i].day_complete == '');
 
         for (const day in Tracker.days) {
             weekly_items.push(<Day key={day} day_of_week={Tracker.days[day]} value={Number(this.state.record.weekly[Tracker.days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
             breakdown_items.push(<Breakdown days={[...days]} key={day} index={day} value={Number(this.state.record.breakdown[day].value)} onChange={this.breakdownValueChanged.bind(this)} day_complete={this.state.record.breakdown[day].day_complete} onComplete={this.breakdownCompletionChanged.bind(this)}/>);
         }
+        
+        const totals = {
+            total_weekly: this.state.record.total_weekly, 
+            total_remaining: this.state.record.total_remaining, 
+            total_uneaten: this.state.record.total_uneaten
+        };
 
         const content = (
             <Container>
             <Row>
                 <Col>
-                    <Alert variant='info'>
-                        <Alert.Heading>{this.state.record.name}</Alert.Heading>
-                        Welcome to ZigZagCal. Enjoy!
-                    </Alert>
+                <Welcome name={this.state.record.name} />
                 </Col>
             </Row>
             <Row>
@@ -231,66 +201,18 @@ export class Tracker extends Component {
             </Row>
             <Row>
                 <Col>
-                    <InputGroup className='mb-3'>
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id='total_weekly_calories' className='totals-label'>Weekly Goal</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl
-                            className="totals"
-                            placeholder='0'
-                            aria-label='total_weekly_calories'
-                            aria-describedby='total_weekly_calories'
-                            readOnly
-                            value={this.state.total_weekly}
-                        />
-                    </InputGroup>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
                     {weekly_items}
                 </Col>
             </Row>
-
             <Row>
                 <Col>
-                    <InputGroup className='mb-3'>
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id='total_remaining_calories' className='totals-label'>Remaining</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl 
-                            className="totals"
-                            placeholder='0'
-                            aria-label='total_remaining_calories'
-                            aria-describedby='total_remaining_calories'
-                            readOnly
-                            value={this.state.total_remaining}
-                        />
-                    </InputGroup>
+                  <Totals 
+                    totals={totals}
+                />
                 </Col>
             </Row>
-
             <Row>
                 <Col>
-                    <InputGroup className='mb-3'>
-                        <InputGroup.Prepend>
-                            <InputGroup.Text id='total_uneaten_calories' className='totals-label'>Uneaten</InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <FormControl 
-                            className="totals"
-                            placeholder='0'
-                            aria-label='total_uneaten_calories'
-                            aria-describedby='total_uneaten_calories'
-                            readOnly
-                            value={this.state.total_uneaten}
-                        />
-                    </InputGroup>
-                </Col>
-            </Row>
-
-
-            <Row>
-                    <Col>
                     <div style={{ display: "flex", justifyContent: 'flex-end' }}>
                         <Button variant="primary" onClick={this.submitreset.bind(this)}>Reset</Button>{' '}
                     </div>
@@ -298,44 +220,10 @@ export class Tracker extends Component {
                 </Row>
             <Row>
                 <Col>
-                    <div style={{ width: '250px', margin : 'auto' }} >
-                        <PieChart
-                            slices={[
-                                {
-                                    color: colors[0],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.monday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[1],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.tuesday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[2],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.wednesday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[3],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.thursday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[4],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.friday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[5],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.saturday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: colors[6],
-                                    value: (this.state.total_weekly === 0 ? 0 : (this.state.record.weekly.sunday / this.state.total_weekly) * 100),
-                                },
-                                {
-                                    color: '#E2E3E5',
-                                    value: ((this.state.total_weekly <= 0 || this.state.total_remaining <= 0) ? 0 : (this.state.total_remaining / this.state.total_weekly) * 100),
-                                }
-                            ]}
-                        />
-                        </div>
+                    <PieChart 
+                        totals={totals}
+                        weekly={this.record.weekly}
+                    />
                 </Col>              
             </Row>
              <Row>

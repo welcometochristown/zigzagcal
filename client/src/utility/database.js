@@ -1,4 +1,5 @@
 export class database  {
+
     static async load(user, datesk, last = false) {
 
         if(!user || !datesk)
