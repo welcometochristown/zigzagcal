@@ -1,6 +1,6 @@
 export class database  {
 
-    static async dbFetch(url, action, headers, body)
+    static async action(url, action, headers, body)
     {
         console.log({
             url:url,
@@ -11,7 +11,8 @@ export class database  {
 
         return await fetch(url, {
             method: action,
-            headers
+            headers: headers,
+            body:body
         });
     }
 
@@ -22,7 +23,7 @@ export class database  {
             
         const url = 'http://' + window.location.hostname + ':1337/'+ (last ? 'last/' : '') + user + '/' + datesk;
 
-        let data = await database.dbFetch(url, 'GET', {
+        let data = await database.action(url, 'GET', {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
         })
@@ -37,7 +38,7 @@ export class database  {
     static async save(obj) {
         const url = 'http://' + window.location.hostname + ':1337';
 
-        await database.dbFetch(url, 'POST', {
+        await database.action(url, 'POST', {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
