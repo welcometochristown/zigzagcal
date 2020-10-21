@@ -45,5 +45,8 @@ input.form-control.strikethrough {
     background-color: #E1D0EF;
 }
 
-
+.logoimg {
+    max-width: 24px;
+    max-height: 24px;
+}
 
