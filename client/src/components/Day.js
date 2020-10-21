@@ -2,7 +2,7 @@
 import { InputGroup, FormControl } from 'react-bootstrap';
 import './styles.css'
 
-export class Day extends Component {
+export default class Day extends Component {
     static displayName = Day.name;
       
     render() {

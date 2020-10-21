@@ -14,17 +14,17 @@ Date.prototype.nextWeek = function() {
 }
 
 Date.prototype.sow = function() {
-    if(this.getDay() == 1)
+    if(this.getDay() === 1)
         return this;
 
-    if(this.getDay() == 0)
+    if(this.getDay() === 0)
         return this.addDays(1-7);
 
     return this.addDays(1-this.getDay());
 };
 
 Date.prototype.isDateMatch = function(date) {
-    return (this.getFullYear() == date.getFullYear() && this.getMonth() == date.getMonth() && this.getDate() == date.getDate());
+    return (this.getFullYear() === date.getFullYear() && this.getMonth() === date.getMonth() && this.getDate() === date.getDate());
 }
 
 Date.formatDateSK = function(datesk)

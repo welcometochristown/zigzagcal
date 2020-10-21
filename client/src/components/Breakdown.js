@@ -2,7 +2,7 @@
 import { InputGroup, FormControl, DropdownButton, Dropdown } from 'react-bootstrap';
 import './styles.css'
 
-export class Breakdown extends Component {
+export default class Breakdown extends Component {
     static displayName = Breakdown.name;
 
     render() {

@@ -1,16 +1,29 @@
-﻿import React, { Component } from 'react';
-import { InputGroup, FormControl, Alert, Button } from 'react-bootstrap';
+﻿/////react components
+import React, { Component } from 'react';
+
+/////bootstrap components
+import {  Button } from 'react-bootstrap';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Day } from './Day';
-import PieChart from 'react-simple-pie-chart';
-import { Breakdown } from './Breakdown';
-import { Login } from './Login'
-import { confirmAlert } from 'react-confirm-alert'; // Import
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
-import { DateDisplay } from './DateDisplay';
-import './styles.css';
+
+///// prototypes
 import '../prototypes/proto-date';
 import { database } from '../utility/database';
+
+/////local components
+import DateDisplay from './DateDisplay';
+import Day from './Day';
+import Breakdown from './Breakdown';
+import Login from './Login'
+import Welcome from './Welcome'
+import Totals from './Totals'
+import Pie from './Pie'
+
+/////additional components
+import { confirmAlert } from 'react-confirm-alert'; 
+
+///// css
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import './styles.css';
 
 export class Tracker extends Component {
     static displayName = Tracker.name;
@@ -38,31 +51,24 @@ export class Tracker extends Component {
         }
     }
 
-    async getLatestBreakdown(user, datesk)
-    {      
-        var result = database.load(user, datesk, true);
-
-        if(!result)
-            return null;
-
-        result.breakdown.forEach((_, index) => data[0].breakdown[index].day_complete = '');
-        return result.breakdown;
-
-    }
-
     async load(user, datesk) {
 
-        var record = database.load(user, datesk);
+        var record = await database.load(user, datesk);
+        console.log({record});
 
         if(!record)
         {
             record = this.createEmptyRecord(true);
             record.datesk = datesk;
 
-            var latest =  await this.getLatestBreakdown(user, datesk);
+            var latest =  await database.load(user, datesk, true);
+            console.log({latest});
 
             if(!latest)
-                newRecord.breakdown = latest;
+            {
+                record.breakdown = latest;
+                record.breakdown.forEach((_, index) => record.breakdown[index].day_complete = '');
+            }
         }
 
         await this.update((r) => record, false);
@@ -89,6 +95,22 @@ export class Tracker extends Component {
         });
     }
 
+ 
+
+    updateTotals() {
+
+        var total = this.state.record.breakdown.map(n => n.value).reduce((a, b) => a + b, 0);
+        var total_complete = this.state.record.breakdown.filter(n => n.day_complete !== '').map(n => n.value).reduce((a, b) => a + b, 0);
+        var eaten = Object.keys(this.state.record.weekly).map(n => this.state.record.weekly[n]).reduce((a, b) => a+b, 0);
+        
+        this.setState({
+            total_weekly: total,
+            total_remaining : (+total - +eaten),
+            total_uneaten : (+total_complete - +eaten)
+        });
+
+    }
+
     async breakdownCompletionChanged(instance, day) {
         await this.update((record) =>{ 
             record.breakdown[instance].day_complete = day; 
@@ -108,30 +130,18 @@ export class Tracker extends Component {
         })
     }
 
-    updateTotals() {
-
-        var total = this.state.record.breakdown.map(n => n.value).reduce((a, b) => a + b, 0);
-        var total_complete = this.state.record.breakdown.filter(n => n.day_complete !== '').map(n => n.value).reduce((a, b) => a + b, 0);
-        var eaten = Object.keys(this.state.record.weekly).map(n => this.state.record.weekly[n]).reduce((a, b) => a+b, 0);
-        
-        this.setState({
-            total_weekly: total,
-            total_remaining : (+total - +eaten),
-            total_uneaten : (+total_complete - +eaten)
-        });
-
+    async prevDateBtnClicked() {
+        await this.load(this.state.record.name, 
+            Date.fromDateSK(this.state.record.datesk).prevWeek().yyyymmdd());
     }
 
-    async loginbtnclicked(user) {
+    async nextDateBtnClicked() {
+        await this.load(this.state.record.name, 
+            Date.fromDateSK(this.state.record.datesk).nextWeek().yyyymmdd());
+    }
+
+    async loginBtnClicked(user) {
         this.props.history.push('/tracker/' + user);
-    }
-
-    async prevdatebtnclicked() {
-        await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).prevWeek().yyyymmdd());
-    }
-
-    async nextdatebtnclicked() {
-        await this.load(this.state.record.name, Date.fromDateSK(this.state.record.datesk).nextWeek().yyyymmdd());
     }
 
     createEmptyRecord(clearbreakdown)
@@ -159,13 +169,13 @@ export class Tracker extends Component {
     }
 
     render() {
-
+        console.log(this.state.record)
         const colors = ['#CCE5FF', '#FFDDC9', '#D4EDDA', '#F8D7DA', '#FFF3CD', '#D1ECF1', '#E1D0EF']
 
         const weekly_items = []
         const breakdown_items = []
         
-        var days = [...Tracker.days].filter((n,i) => this.state.record.breakdown[i].day_complete == '');
+        var days = [...Tracker.days].filter((n,i) => this.state.record.breakdown[i].day_complete === '');
 
         for (const day in Tracker.days) {
             weekly_items.push(<Day key={day} day_of_week={Tracker.days[day]} value={Number(this.state.record.weekly[Tracker.days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
@@ -188,9 +198,9 @@ export class Tracker extends Component {
             <Row>
                 <Col>
                     <DateDisplay 
-                        value={this.formatDateSK(this.state.record.datesk)} 
-                        onDatePrev={this.prevdatebtnclicked.bind(this)} 
-                        onDateNext={this.nextdatebtnclicked.bind(this)} 
+                        value={Date.formatDateSK(this.state.record.datesk)} 
+                        onDatePrev={this.prevDateBtnClicked.bind(this)} 
+                        onDateNext={this.nextDateBtnClicked.bind(this)} 
                     />
                 </Col>
             </Row>
@@ -220,10 +230,11 @@ export class Tracker extends Component {
                 </Row>
             <Row>
                 <Col>
-                    <PieChart 
+                    {/* <Pie 
                         totals={totals}
-                        weekly={this.record.weekly}
-                    />
+                        weekly={this.state.record.weekly}
+                        colors={colors}
+                    /> */}
                 </Col>              
             </Row>
              <Row>
@@ -232,7 +243,7 @@ export class Tracker extends Component {
             </Container>);
 
         const login = (
-            <Login onClick={this.loginbtnclicked.bind(this)}/>
+            <Login onClick={this.loginBtnClicked.bind(this)}/>
         );        
 
         return (
