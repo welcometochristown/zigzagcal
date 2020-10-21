@@ -64,9 +64,9 @@ export class Tracker extends Component {
             var latest =  await database.load(user, datesk, true);
             console.log({latest});
 
-            if(!latest)
+            if(latest)
             {
-                record.breakdown = latest;
+                record.breakdown = latest.breakdown;
                 record.breakdown.forEach((_, index) => record.breakdown[index].day_complete = '');
             }
         }

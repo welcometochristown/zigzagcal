@@ -6,9 +6,7 @@ export default class Totals extends Component {
     render() {
         return (
             <div>
-            <Container>
-                <Row>
-                    <Col>
+                <div>
                         <InputGroup className='mb-3'>
                             <InputGroup.Prepend>
                                 <InputGroup.Text id='total_weekly_calories' className='totals-label'>Weekly Goal</InputGroup.Text>
@@ -22,10 +20,8 @@ export default class Totals extends Component {
                                 value={this.props.totals.total_weekly}
                             />
                         </InputGroup>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
+                </div>   
+                <div>
                         <InputGroup className='mb-3'>
                             <InputGroup.Prepend>
                                 <InputGroup.Text id='total_remaining_calories' className='totals-label'>Remaining</InputGroup.Text>
@@ -39,11 +35,8 @@ export default class Totals extends Component {
                                 value={this.props.totals.total_remaining}
                             />
                         </InputGroup>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col>
+                </div>
+                <div>
                         <InputGroup className='mb-3'>
                             <InputGroup.Prepend>
                                 <InputGroup.Text id='total_uneaten_calories' className='totals-label'>Uneaten</InputGroup.Text>
@@ -57,9 +50,7 @@ export default class Totals extends Component {
                                 value={this.props.totals.total_uneaten}
                             />
                         </InputGroup>
-                    </Col>
-                </Row>  
-            </Container>
+                </div>
             </div>
         )
     }
