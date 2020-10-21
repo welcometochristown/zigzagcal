@@ -54,7 +54,6 @@ export class Tracker extends Component {
     async load(user, datesk) {
 
         var record = await database.load(user, datesk);
-        console.log({record});
 
         if(!record)
         {
