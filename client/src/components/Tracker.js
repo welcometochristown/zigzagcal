@@ -174,10 +174,6 @@ export class Tracker extends Component {
 
         const weekly_items = []
         const breakdown_items = []
-<<<<<<< HEAD
-        
-        var days = [...Tracker.days].filter((n,i) => this.state.record.breakdown[i].day_complete === '');
-=======
 
         var completed = this.state.record.breakdown.map(n => n.day_complete);
         var days = [...Tracker.days].filter((n,i) => !completed.includes(n.toLowerCase()));
@@ -186,7 +182,6 @@ export class Tracker extends Component {
             days:days,
             breakdown: this.state.record.breakdown
         });
->>>>>>> ffedb0591f8fc30b8d5f905f7e8a3adcbecbe5d5
 
         for (const day in Tracker.days) {
             weekly_items.push(<Day key={day} day_of_week={Tracker.days[day]} value={Number(this.state.record.weekly[Tracker.days[day].toLowerCase()])} onChange={this.dayValueChanged.bind(this)} />);
