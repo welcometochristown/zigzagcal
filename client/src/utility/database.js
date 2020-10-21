@@ -42,7 +42,7 @@ export class database  {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            JSON.stringify(this.state.record)
+            JSON.stringify(obj)
         );
     }
 }
