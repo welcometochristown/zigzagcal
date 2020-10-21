@@ -1,9 +1,8 @@
 ﻿import React, { Component } from 'react'
 import { InputGroup, FormControl } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
 
-export class Login extends Component {
+export default class Login extends Component {
     static displayName = Login.name;
 
     constructor(props)
@@ -37,7 +36,7 @@ export class Login extends Component {
                         aria-label='username'
                         aria-describedby='username'
                         onChange={(event) => { this.updateName.bind(this)(event.target.value) }}
-                        onKeyPress={(event) => { if(event.charCode == 13) this.props.onClick(this.cleanName(this.state.name))}}
+                        onKeyPress={(event) => { if(event.charCode === 13) this.props.onClick(this.cleanName(this.state.name))}}
                     />
                 </InputGroup>
                 <div style={{ display: "flex", justifyContent: 'flex-end' }}>

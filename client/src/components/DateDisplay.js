@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Pagination, InputGroup, FormControl } from 'react-bootstrap'
 
-export class DateDisplay extends Component {
+export default class DateDisplay extends Component {
     
     render() {
         return (

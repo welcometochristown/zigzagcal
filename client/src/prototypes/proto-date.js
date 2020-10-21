@@ -14,17 +14,42 @@ Date.prototype.nextWeek = function() {
 }
 
 Date.prototype.sow = function() {
-    if(this.getDay() == 1)
+    if(this.getDay() === 1)
         return this;
 
-    if(this.getDay() == 0)
+    if(this.getDay() === 0)
         return this.addDays(1-7);
 
     return this.addDays(1-this.getDay());
 };
 
 Date.prototype.isDateMatch = function(date) {
-    return (this.getFullYear() == date.getFullYear() && this.getMonth() == date.getMonth() && this.getDate() == date.getDate());
+    return (this.getFullYear() === date.getFullYear() && this.getMonth() === date.getMonth() && this.getDate() === date.getDate());
+}
+
+Date.formatDateSK = function(datesk)
+{
+    if(typeof datesk === 'undefined')
+        return datesk;
+
+    if(Number.isInteger(datesk))
+        datesk = datesk.toString();
+
+    var d = Date.fromDateSK(datesk);
+            
+    var last_week_start = new Date().sow().prevWeek();
+    if(d.isDateMatch(last_week_start))
+       return "Last Week";
+
+    var this_week_start = new Date().sow();
+    if(d.isDateMatch(this_week_start))
+        return "This Week";
+        
+    var next_week_start = new Date().sow().nextWeek();
+    if(d.isDateMatch(next_week_start))
+       return "Next Week";
+
+    return datesk;
 }
 
 Date.compareDateSK = function(datesk1, datesk2)
