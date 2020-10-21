@@ -54,7 +54,6 @@ export class Tracker extends Component {
     async load(user, datesk) {
 
         var record = await database.load(user, datesk);
-        console.log({record});
 
         if(!record)
         {
@@ -98,7 +97,6 @@ export class Tracker extends Component {
  
 
     updateTotals() {
-
         var total = this.state.record.breakdown.map(n => n.value).reduce((a, b) => a + b, 0);
         var total_complete = this.state.record.breakdown.filter(n => n.day_complete !== '').map(n => n.value).reduce((a, b) => a + b, 0);
         var eaten = Object.keys(this.state.record.weekly).map(n => this.state.record.weekly[n]).reduce((a, b) => a+b, 0);
@@ -184,9 +182,9 @@ export class Tracker extends Component {
         }
         
         const totals = {
-            total_weekly: this.state.record.total_weekly, 
-            total_remaining: this.state.record.total_remaining, 
-            total_uneaten: this.state.record.total_uneaten
+            total_weekly: this.state.total_weekly, 
+            total_remaining: this.state.total_remaining, 
+            total_uneaten: this.state.total_uneaten
         };
 
         const content = (
