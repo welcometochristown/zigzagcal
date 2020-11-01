@@ -9,7 +9,10 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-pino-logger": "^5.0.0",
+    "express-winston": "^4.0.5",
     "mongoose": "^5.10.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "winston": "^3.3.3"
   }
 }

@@ -1,13 +1,13 @@
 const express = require('express');
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const config = require('./config');
 const record = require('./models/model_record');
-const bodyParser = require('body-parser')
-
+const bodyParser = require('body-parser');
 const router = express.Router();
 
-const urlencodedParser = bodyParser.urlencoded({ extended: false })
 const jsonParser = bodyParser.json()
+
+router.get('/favicon.ico', (req, res) => res.status(204));
 
 router.get('/', (req, res, next) => {
      mongoose.connect('mongodb+srv://' + config.db_config.user + ':' + config.db_config.pass + '@' + config.db_config.cluster + '/' + config.db_config.db + '?retryWrites=true&w=majority', { useNewUrlParser: true }, (err) => {
