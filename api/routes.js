@@ -1,17 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const config = require('./config');
-const record = require('./models/model_record');
 const bodyParser = require('body-parser');
 const router = express.Router();
-
 const jsonParser = bodyParser.json()
+const record = require('./models/model_record');
 
 router.get('/favicon.ico', (req, res) => res.status(204));
 
 router.get('/', (req, res, next) => {
      mongoose.connect('mongodb+srv://' + config.db_config.user + ':' + config.db_config.pass + '@' + config.db_config.cluster + '/' + config.db_config.db + '?retryWrites=true&w=majority', { useNewUrlParser: true }, (err) => {
-
+    
         if (err)
             throw err;
 
@@ -52,7 +51,7 @@ router.get('/:user/:datesk', (req, res, next) => {
            throw err;
 
        record.find({name : user, datesk : datesk}, (err, entries) => {
-           res.status(200).json(entries);
+            res.status(200).json(entries);
        })
    })  
 });
