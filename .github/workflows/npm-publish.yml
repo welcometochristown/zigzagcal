@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: build_app
+        run: |
+             CI=false 
+             npm install 
+        working-directory: ./client
       - name: api_ftp_deployment
         uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
